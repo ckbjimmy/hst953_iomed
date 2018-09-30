@@ -41,6 +41,47 @@ Wei-Hung Weng (ckbjimmy [at] mit [dot] edu)
 
 - [Paper describes eICU database](https://www.nature.com/articles/sdata2018178)
 
+# Basic SQL Syntax
+
+
+```r
+SELECT [columns]
+FROM   [table]
+WHERE  [condition1 AND (condition2 OR condition3)]
+GROUP BY [columns]
+ORDER BY [columns] [ASC/DESC]
+```
+
+## `JOIN`
+
+- `LEFT JOIN`
+- `INNER JOIN`
+- `RIGHT JOIN`
+
+
+```r
+SELECT [columns]
+FROM   [table1] t1
+LEFT JOIN [table2] t2
+ON t1.[column] = t2.[column]
+WHERE t1.[condition1]
+```
+
+## `WITH`
+
+The syntax `WITH` can create a temporary table to break a large SQL query to smaller pieces. Here is a simple case to demonstrate how to use it. You can also create materialized views in your database, which you can literally use those views as if they are real tables.  
+
+
+```r
+WITH dates AS (
+  SELECT subject_id, admittime, deathtime, deathtime-admittime AS los
+  FROM admissions
+  WHERE deathtime IS NOT NULL
+)
+SELECT subject_id, los
+FROM dates
+```
+
 # Exercise
 
 ## Preparation

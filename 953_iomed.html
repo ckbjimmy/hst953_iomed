@@ -161,6 +161,38 @@ $(document).ready(function () {
 </ul>
 </div>
 </div>
+<div id="basic-sql-syntax" class="section level1">
+<h1>Basic SQL Syntax</h1>
+<pre class="r"><code>SELECT [columns]
+FROM   [table]
+WHERE  [condition1 AND (condition2 OR condition3)]
+GROUP BY [columns]
+ORDER BY [columns] [ASC/DESC]</code></pre>
+<div id="join" class="section level2">
+<h2><code>JOIN</code></h2>
+<ul>
+<li><code>LEFT JOIN</code></li>
+<li><code>INNER JOIN</code></li>
+<li><code>RIGHT JOIN</code></li>
+</ul>
+<pre class="r"><code>SELECT [columns]
+FROM   [table1] t1
+LEFT JOIN [table2] t2
+ON t1.[column] = t2.[column]
+WHERE t1.[condition1]</code></pre>
+</div>
+<div id="with" class="section level2">
+<h2><code>WITH</code></h2>
+<p>The syntax <code>WITH</code> can create a temporary table to break a large SQL query to smaller pieces. Here is a simple case to demonstrate how to use it. You can also create materialized views in your database, which you can literally use those views as if they are real tables.</p>
+<pre class="r"><code>WITH dates AS (
+  SELECT subject_id, admittime, deathtime, deathtime-admittime AS los
+  FROM admissions
+  WHERE deathtime IS NOT NULL
+)
+SELECT subject_id, los
+FROM dates</code></pre>
+</div>
+</div>
 <div id="exercise" class="section level1">
 <h1>Exercise</h1>
 <div id="preparation" class="section level2">
