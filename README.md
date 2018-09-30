@@ -1,1 +1,224 @@
-# hst953_iomed
+# Workshop - I/O and Medication
+Wei-Hung Weng (ckbjimmy [at] mit [dot] edu)  
+28 October 2018  
+
+
+
+# Resource
+
+## MIMIC-III
+
+- [Table information](https://mimic.physionet.org/mimictables/prescriptions/)
+- Code repository [MIT-LCP/mimic-code](https://github.com/MIT-LCP/mimic-code)
+
+  * [Extracting durations of drug infusion](https://github.com/MIT-LCP/mimic-code/tree/master/concepts/durations)
+  * [Extracting the first day information](https://github.com/MIT-LCP/mimic-code/tree/master/concepts/firstday)
+  * [Extracting urine output](https://github.com/MIT-LCP/mimic-code/blob/master/concepts/cookbook/uo.sql)
+  * [Extracting urine output](https://github.com/MIT-LCP/mimic-code/blob/master/concepts/fluid-balance/urine-output.sql)
+  * [Extracting urine output (pivoted table)](https://github.com/MIT-LCP/mimic-code/blob/master/concepts/pivot/pivoted-uo.sql)
+  * [Identifying the patient with renal replacement therapy (RRT)](https://github.com/MIT-LCP/mimic-code/blob/master/concepts/rrt.sql)
+  * [Use case - Continuous RRT](https://github.com/MIT-LCP/mimic-code/blob/master/notebooks/crrt-notebook.ipynb)
+  * [Use case - vancomycin dosing](https://github.com/MIT-LCP/mimic-code/blob/master/notebooks/vancomycin-dosing.ipynb)
+
+- [Paper describes MIMIC-III](https://www.nature.com/articles/sdata201635)
+
+## eICU
+
+- [Table information](https://eicu-crd.mit.edu/eicutables/medication/)
+- Code repository [MIT-LCP/eicu-code](https://github.com/MIT-LCP/eicu-code)
+
+  * [eicu-code/concepts/pivoted/pivoted-infusion.sql](https://github.com/MIT-LCP/eicu-code/blob/master/concepts/pivoted/pivoted-infusion.sql)
+  * [eicu-code/concepts/pivoted/pivoted-med.sql](https://github.com/MIT-LCP/eicu-code/blob/master/concepts/pivoted/pivoted-med.sql)
+  * [eicu-code/concepts/pivoted/pivoted-treatment-vasopressor.sql](https://github.com/MIT-LCP/eicu-code/blob/master/concepts/pivoted/pivoted-treatment-vasopressor.sql)
+  * [eicu-code/concepts/pivoted/pivoted-uo.sql](https://github.com/MIT-LCP/eicu-code/blob/master/concepts/pivoted/pivoted-uo.sql)
+  
+  * [Exploring `intakeoutput` table](https://github.com/MIT-LCP/eicu-code/blob/master/notebooks/intakeoutput.ipynb)
+  
+  * [Exploring `allergy` table](https://github.com/MIT-LCP/eicu-code/blob/master/notebooks/allergy.ipynb)
+  * [Exploring `infusiondrug` table](https://github.com/MIT-LCP/eicu-code/blob/master/notebooks/infusiondrug.ipynb)
+  * [Exploring `medication` table](https://github.com/MIT-LCP/eicu-code/blob/master/notebooks/medication.ipynb)
+  * [Exploring `treatment` table](https://github.com/MIT-LCP/eicu-code/blob/master/notebooks/treatment.ipynb)
+
+- [Paper describes eICU](https://www.nature.com/articles/sdata2018178)
+
+# Exercise
+
+## Preparation
+
+In the workshop, we use the MIMIC and eICU databases located on Google Cloud Platform, and connect to them through the R package `bigrquery`. For demonstration, we just extract the data from demo dataset (`mimiciii_demo` and `eicu_crd_demo`). Please modify the path of dataset in R and SQL scripts into the full dataset (`mimiciii_clinical` and `eicu_crd`) for your projects.
+
+
+```r
+# Establishing GCP connection
+library(bigrquery)
+
+project_id <- "hst-953-2018"
+options(httr_oauth_cache=FALSE)
+
+run_query <- function(query){
+  data <- query_exec(query, project=project_id, use_legacy_sql=FALSE)
+  return(data)
+}
+
+# test and get auth code
+run_query(paste0("SELECT count(1) FROM `physionet-data.mimiciii_demo`.`patients`"))
+```
+
+To make our files neat and organized, we put all SQL scripts under the folder `./sql/`. We will use the following `get_sql` function to read the SQL code in the file, and pass it to the execution function `run_query` later.  
+
+
+```r
+get_sql <- function(f){
+  con = file(f, "r")
+  sql.string <- ""
+  while (TRUE) {
+    line <- readLines(con, n=1)
+    if (length(line) == 0) {
+      break
+    }
+    line <- gsub("\\t", " ", line)
+    if (grepl("--", line) == TRUE) {
+      line <- paste(sub("--", "/*", line), "*/")
+    }
+    sql.string <- paste(sql.string, line)
+  }
+  close(con)
+  return(sql.string)
+}
+```
+
+If you plan to use Python instead of R, the following chunk can help you do the same task as the above R code. You can also try 
+[colab](https://colab.research.google.com/drive/1HZHT6BUNNoTE89TF09EveRBMeyZfEI-7) version.  
+
+
+```python
+import os
+import pandas as pd
+
+from google.colab import auth
+from google.cloud import bigquery
+
+auth.authenticate_user()
+
+project_id = 'hst-953-2018'
+os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
+
+def run_query(query):
+  return pd.io.gbq.read_gbq(query, 
+                            project_id=project_id, 
+                            verbose=False, 
+                            configuration={'query':{'useLegacySql': False}})
+
+def get_sql(f):
+  file = open(f, 'r')
+  s = " ".join(file.readlines())
+  return s
+
+df = run_query("SELECT * FROM `physionet-data.mimiciii_demo`.`patients` limit 10")
+df
+
+q = get_sql('./sql/bq-eicu-med.sql')
+df = run_query(q)
+df
+```
+
+In the following sections, we provide some MIMIC and eICU SQL codes related to our topics, intake/output and medication, which are adopted from [MIT-LCP repository](https://github.com/MIT-LCP/mimic-code) but modified for the databases on Google Cloud. For people who want to run the codes on local postgreSQL server, please go back to the [GitHub repo](https://github.com/MIT-LCP/mimic-code) and use the original SQL. (This is because that the Google BigQuery and PostgreSQL still have some differences in syntax.)
+
+We thank Dr. Alistair Johnson for his effort constructing all these code repositories and sharing his queries to us.
+
+## Intake/Output
+
+### MIMIC-III
+
+1. Using `outputevents` table. The first example is to sum up the urine output using the `outputevents` table. There are two scripts doing the same task with slightly different code writing styles.
+
+  * [concepts/fluid-balance/urine-output.sql](https://github.com/MIT-LCP/mimic-code/blob/master/concepts/fluid-balance/urine-output.sql)
+  * [concepts/pivot/pivoted-uo.sql](https://github.com/MIT-LCP/mimic-code/blob/master/concepts/pivot/pivoted-uo.sql)
+  * You can use the `itemid` in the SQL codes for identifying urine output items
+
+
+```r
+q <- get_sql("sql/bq-mimic-uo.sql")
+res <- run_query(q)
+head(res)
+
+q <- get_sql("sql/bq-mimic-pivoted-uo.sql")
+res2 <- run_query(q)
+head(res2)
+```
+
+2. Using `chartevents` table. The second example for MIMIC-III is to identify the duration of continuous renal replacement therapy (CRRT). 
+
+  * [concepts/durations/crrt-durations.sql](https://github.com/MIT-LCP/mimic-code/blob/master/concepts/durations/crrt-durations.sql)
+  * You can use the `itemid` here to identify the items for hemodialysis. It summarizes all the item ids in `chartevents`, CareVue and MetaVision versions of coding.
+
+
+```r
+q <- get_sql("sql/bq-mimic-crrt-durations.sql")
+res <- run_query(q)
+head(res)
+```
+
+### eICU
+
+1. Using `intakeoutput` table. The goal of this query is to identify the daily fluid balance (output - input) for each ICU patient. 
+
+  * In `intakeoutput` table, we can simply identify intake/output items using string matching in `cellpath` column.
+  * We thank Dr. Matthieu Komorowski providing the script
+
+
+```r
+q <- get_sql("sql/bq-eicu-io.sql")
+res <- run_query(q)
+head(res)
+```
+
+
+## Medication
+
+### MIMIC-III
+
+1. Using `prescriptions` table. In this example, we try to identify whether the antibiotics is used on each patient during their ICU stay (binary). We need to use string matching to identify if your target medications show up in the `drug_name_generic` column of `prescriptions` table.
+
+  * You can use the medication list here for antibiotics use
+  * You need to have clinicians (physicians or pharmacists) to help you ensure what medications are needed for your study. e.g. `%lol%` for beta-blockers
+
+
+```r
+q <- get_sql("sql/bq-mimic-med.sql")
+res <- run_query(q)
+head(res)
+```
+
+### eICU
+
+1. Using `medication` table. This is almost the same as the query for MIMIC `prescriptions` table, since they both need to do string matching for identifying medications. 
+
+
+```r
+q <- get_sql("sql/bq-eicu-med.sql")
+res <- run_query(q)
+head(res)
+```
+
+2. Using `medication` table but also using HICL codes. `drughiclseqno` column is considered in this case. In this example, we want to see whether the patient has received some specific infusion medications. It is still similar to the first case, but in slightly different coding style.
+  
+
+```r
+q <- get_sql("sql/bq-eicu-pivoted-med.sql")
+res <- run_query(q)
+head(res)
+```
+
+2. Using `infusiondrug` table. This example is to identify the usage of infusion drugs (dopamine, dobutamine, norepinephrine, phenylephrine, vasopressin, milrinone, heparin) for each patient.
+
+  * [concepts/pivoted/pivoted-infusion.sql](https://github.com/MIT-LCP/eicu-code/blob/master/concepts/pivoted/pivoted-infusion.sql)
+  * You can use the identified strings of seven infusion drugs in the script as your infusion drug list.
+  * You may compare the result of this table and `medication` table. For the formal analysis, you need to consider the union of the results from two tables.
+
+
+```r
+q <- get_sql("sql/bq-eicu-pivoted-infusion.sql")
+res <- run_query(q)
+head(res)
+```

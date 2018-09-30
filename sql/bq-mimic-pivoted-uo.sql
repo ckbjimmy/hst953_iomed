@@ -18,6 +18,8 @@ from
   from `physionet-data.mimiciii_demo`.`outputevents` oe
   -- exclude rows marked as error
   where oe.iserror IS NULL
+  and oe.value < 5000 -- sanity check on urine value
+  and oe.icustay_id is not null
   and itemid in
   (
   -- these are the most frequently occurring urine output observations in CareVue

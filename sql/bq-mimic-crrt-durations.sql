@@ -66,7 +66,7 @@ with crrt_settings as
   then 1
   else 0
   end ) as RRT_end
-  from `physionet-data.mimiciii_clinical`.`chartevents` ce
+  from `physionet-data.mimiciii_demo`.`chartevents` ce
   where ce.itemid in
   (
   -- MetaVision ITEMIDs

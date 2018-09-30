@@ -5,7 +5,8 @@ case when oe.itemid = 227488 then -1*value
 else value end
 ) as value
 from `physionet-data.mimiciii_demo`.`outputevents` oe
-where oe.itemid in
+where oe.iserror IS NULL
+  and oe.itemid in
 (
   -- these are the most frequently occurring urine output observations in CareVue
   40055, -- "Urine Out Foley"
@@ -39,4 +40,5 @@ where oe.itemid in
 )
 and oe.value < 5000 -- sanity check on urine value
 and oe.icustay_id is not null
-group by icustay_id, charttime;
+group by icustay_id, charttime
+order by icustay_id, charttime;
