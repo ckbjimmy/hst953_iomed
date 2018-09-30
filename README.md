@@ -1,6 +1,6 @@
 # Workshop - I/O and Medication
 Wei-Hung Weng (ckbjimmy [at] mit [dot] edu)  
-28 October 2018  
+12 October 2018  
 
 
 
@@ -20,7 +20,7 @@ Wei-Hung Weng (ckbjimmy [at] mit [dot] edu)
   * [Use case - Continuous RRT](https://github.com/MIT-LCP/mimic-code/blob/master/notebooks/crrt-notebook.ipynb)
   * [Use case - vancomycin dosing](https://github.com/MIT-LCP/mimic-code/blob/master/notebooks/vancomycin-dosing.ipynb)
 
-- [Paper describes MIMIC-III](https://www.nature.com/articles/sdata201635)
+- [Paper describes MIMIC-III database](https://www.nature.com/articles/sdata201635)
 
 ## eICU
 
@@ -39,7 +39,7 @@ Wei-Hung Weng (ckbjimmy [at] mit [dot] edu)
   * [Exploring `medication` table](https://github.com/MIT-LCP/eicu-code/blob/master/notebooks/medication.ipynb)
   * [Exploring `treatment` table](https://github.com/MIT-LCP/eicu-code/blob/master/notebooks/treatment.ipynb)
 
-- [Paper describes eICU](https://www.nature.com/articles/sdata2018178)
+- [Paper describes eICU database](https://www.nature.com/articles/sdata2018178)
 
 # Exercise
 
