@@ -4,6 +4,12 @@ Wei-Hung Weng (ckbjimmy [at] mit [dot] edu)
 
 
 
+# Objective
+
+- Know where to find the existing codes for similar problems
+- Understand basic SQL syntax
+- Extract fluid/medication information from both MIMIC/eICU databases
+
 # Resource
 
 ## MIMIC-III
@@ -165,7 +171,7 @@ df
 
 In the following sections, we provide some MIMIC and eICU SQL codes related to our topics, intake/output and medication, which are adopted from [MIT-LCP repository](https://github.com/MIT-LCP/mimic-code) but modified for the databases on Google Cloud. For people who want to run the codes on local postgreSQL server, please go back to the [GitHub repo](https://github.com/MIT-LCP/mimic-code) and use the original SQL. (This is because that the Google BigQuery and PostgreSQL still have some differences in syntax.)
 
-We thank Dr. Alistair Johnson for his effort constructing all these code repositories and sharing his queries to us.
+We thank Dr. Alistair Johnson, Dr. Tom Pollar, and other MIT LCP members for their effort constructing all these code repositories and sharing their queries to us.
 
 ## Intake/Output
 
@@ -196,6 +202,17 @@ head(res2)
 
 ```r
 q <- get_sql("sql/bq-mimic-crrt-durations.sql")
+res <- run_query(q)
+head(res)
+```
+
+3. Using `inputevents_mv` and `inputevents_cv` tables. This example is to identify how many crystalloid bolus was given for each patient.
+
+  * You can use the `itemid` here to identify the items for crystalloid fluid. Crystalloid fluid is the main component of measuring fluid input.
+
+
+```r
+q <- get_sql("sql/bq-mimic-crystalloid-bolus.sql")
 res <- run_query(q)
 head(res)
 ```

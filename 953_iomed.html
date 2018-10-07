@@ -125,6 +125,14 @@ $(document).ready(function () {
 </div>
 
 
+<div id="objective" class="section level1">
+<h1>Objective</h1>
+<ul>
+<li>Know where to find the existing codes for similar problems</li>
+<li>Understand basic SQL syntax</li>
+<li>Extract fluid/medication information from both MIMIC/eICU databases</li>
+</ul>
+</div>
 <div id="resource" class="section level1">
 <h1>Resource</h1>
 <div id="mimic-iii" class="section level2">
@@ -259,7 +267,7 @@ q = get_sql('./sql/bq-eicu-med.sql')
 df = run_query(q)
 df</code></pre>
 <p>In the following sections, we provide some MIMIC and eICU SQL codes related to our topics, intake/output and medication, which are adopted from <a href="https://github.com/MIT-LCP/mimic-code">MIT-LCP repository</a> but modified for the databases on Google Cloud. For people who want to run the codes on local postgreSQL server, please go back to the <a href="https://github.com/MIT-LCP/mimic-code">GitHub repo</a> and use the original SQL. (This is because that the Google BigQuery and PostgreSQL still have some differences in syntax.)</p>
-<p>We thank Dr. Alistair Johnson for his effort constructing all these code repositories and sharing his queries to us.</p>
+<p>We thank Dr. Alistair Johnson, Dr. Tom Pollar, and other MIT LCP members for their effort constructing all these code repositories and sharing their queries to us.</p>
 </div>
 <div id="intakeoutput" class="section level2">
 <h2>Intake/Output</h2>
@@ -288,6 +296,15 @@ head(res2)</code></pre>
 <li>You can use the <code>itemid</code> here to identify the items for hemodialysis. It summarizes all the item ids in <code>chartevents</code>, CareVue and MetaVision versions of coding.</li>
 </ul>
 <pre class="r"><code>q &lt;- get_sql(&quot;sql/bq-mimic-crrt-durations.sql&quot;)
+res &lt;- run_query(q)
+head(res)</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Using <code>inputevents_mv</code> and <code>inputevents_cv</code> tables. This example is to identify how many crystalloid bolus was given for each patient.</li>
+</ol>
+<ul>
+<li>You can use the <code>itemid</code> here to identify the items for crystalloid fluid. Crystalloid fluid is the main component of measuring fluid input.</li>
+</ul>
+<pre class="r"><code>q &lt;- get_sql(&quot;sql/bq-mimic-crystalloid-bolus.sql&quot;)
 res &lt;- run_query(q)
 head(res)</code></pre>
 </div>
