@@ -248,6 +248,8 @@ res <- run_query(q)
 head(res)
 ```
 
+2. Using `inputevents_mv` and `inputevents_cv` tables. Please check the [concepts/durations/](https://github.com/MIT-LCP/mimic-code/tree/master/concepts/durations) sql codes for computing dose and duration of infusion drugs. The way to modify the code is similar to the CRRT example above.
+
 ### eICU
 
 1. Using `medication` table. This is almost the same as the query for MIMIC `prescriptions` table, since they both need to do string matching for identifying medications. 
@@ -268,7 +270,7 @@ res <- run_query(q)
 head(res)
 ```
 
-2. Using `infusiondrug` table. This example is to identify the usage of infusion drugs (dopamine, dobutamine, norepinephrine, phenylephrine, vasopressin, milrinone, heparin) for each patient.
+3. Using `infusiondrug` table. This example is to identify the usage of infusion drugs (dopamine, dobutamine, norepinephrine, phenylephrine, vasopressin, milrinone, heparin) for each patient.
 
   * [concepts/pivoted/pivoted-infusion.sql](https://github.com/MIT-LCP/eicu-code/blob/master/concepts/pivoted/pivoted-infusion.sql)
   * You can use the identified strings of seven infusion drugs in the script as your infusion drug list.

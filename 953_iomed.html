@@ -336,6 +336,9 @@ head(res)</code></pre>
 <pre class="r"><code>q &lt;- get_sql(&quot;sql/bq-mimic-med.sql&quot;)
 res &lt;- run_query(q)
 head(res)</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Using <code>inputevents_mv</code> and <code>inputevents_cv</code> tables. Please check the <a href="https://github.com/MIT-LCP/mimic-code/tree/master/concepts/durations">concepts/durations/</a> sql codes for computing dose and duration of infusion drugs. The way to modify the code is similar to the CRRT example above.</li>
+</ol>
 </div>
 <div id="eicu-2" class="section level3">
 <h3>eICU</h3>
@@ -351,7 +354,7 @@ head(res)</code></pre>
 <pre class="r"><code>q &lt;- get_sql(&quot;sql/bq-eicu-pivoted-med.sql&quot;)
 res &lt;- run_query(q)
 head(res)</code></pre>
-<ol start="2" style="list-style-type: decimal">
+<ol start="3" style="list-style-type: decimal">
 <li>Using <code>infusiondrug</code> table. This example is to identify the usage of infusion drugs (dopamine, dobutamine, norepinephrine, phenylephrine, vasopressin, milrinone, heparin) for each patient.</li>
 </ol>
 <ul>
